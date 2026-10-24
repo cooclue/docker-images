@@ -1,0 +1,30 @@
+name: caddy
+
+on:
+  push:
+    branches: [main]
+    paths: ['caddy/**', '.github/workflows/caddy.yml']
+  workflow_dispatch:
+
+jobs:
+  caddy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: caddy
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/cooclue/caddy:2.11.7-hwdns1
+            ghcr.io/cooclue/caddy:2.11.7-${{ github.sha }}
